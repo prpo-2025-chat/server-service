@@ -24,7 +24,7 @@ public class ServerController {
   /**
    * Creates a Server and assignes the person who created it as ADMIN
    */
-  @PostMapping()
+  @PostMapping
   public ResponseEntity<Server> createServer(
       @RequestHeader("User-Id") String userId,
       @Valid @RequestBody Server server
@@ -39,7 +39,7 @@ public class ServerController {
   /**
    * Creates a DM and assignes both people MEMBER roles
    */
-  @PostMapping()
+  @PostMapping("/dm")
   public ResponseEntity<Server> createDM(
       @RequestHeader("User1-Id") String firstId,
       @RequestHeader("User2-Id") String secondId,

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MembershipService {
@@ -22,6 +24,18 @@ public class MembershipService {
     membership.setUserId(userId);
     membership.setRole(role);
     membershipRepository.save(membership);
+  }
+
+  public List<String> getServersForUser(String userId) {
+    return membershipRepository.findByUserId(userId).stream()
+        .map(Membership::getServerId)
+        .toList();
+  }
+
+  public List<String> getUsersForServer(String serverId) {
+    return membershipRepository.findByServerId(serverId).stream()
+        .map(Membership::getUserId)
+        .toList();
   }
 
 }
