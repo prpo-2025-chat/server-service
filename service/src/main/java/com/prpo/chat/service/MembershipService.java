@@ -26,16 +26,35 @@ public class MembershipService {
     membershipRepository.save(membership);
   }
 
-  public List<String> getServersForUser(String userId) {
+  public List<String> getServersForUser(final String userId) {
     return membershipRepository.findByUserId(userId).stream()
         .map(Membership::getServerId)
         .toList();
   }
 
-  public List<String> getUsersForServer(String serverId) {
+  public List<String> getUsersForServer(final String serverId) {
     return membershipRepository.findByServerId(serverId).stream()
         .map(Membership::getUserId)
         .toList();
+  }
+
+  public void changeRole(
+      final String serverId,
+      final String userId,
+      final Membership.Role role) {
+    // TODO: figure out how to write this nicer
+    membershipRepository.findByUserId(userId).stream()
+        .filter(membership -> membership.getServerId().equals(serverId))
+        .forEach(membership -> {
+          membership.setRole(role);
+          membershipRepository.save(membership);
+        });
+  }
+
+  public void removeMember(
+      final String serverId,
+      final String userId) {
+    membershipRepository.deleteByServerIdAndUserId(serverId, userId);
   }
 
 }

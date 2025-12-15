@@ -35,4 +35,8 @@ public class ServerService {
     return newServer;
   }
 
+  public Server getServer(final String serverId) {
+    return serverRepository.findById(serverId).orElse(null);
+  }
+
 }

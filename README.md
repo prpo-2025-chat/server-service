@@ -11,3 +11,8 @@ in server-service run:\
 Zastarelo:\
 and then:\
 `docker run -p 8080:8080 user-service`
+
+TODO: 
+- test api calls
+- do proper responses
+- swagger documentation

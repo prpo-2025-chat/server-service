@@ -52,7 +52,13 @@ public class ServerController {
         .body(res);
   }
 
-  // getServers
+  @GetMapping("/id")
+  public ResponseEntity<Server> getServerById(
+      @RequestParam("id") String serverId
+  ) {
+    final var res = serverService.getServer(serverId);
+    return new ResponseEntity<>(res, HttpStatus.OK);
+  }
 
   // changePfp
 }
