@@ -18,9 +18,6 @@ public class ServerController {
   @Autowired
   private final ServerService serverService;
 
-  @Autowired
-  private final MembershipService membershipService;
-
   /**
    * Creates a Server and assignes the person who created it as ADMIN
    */
