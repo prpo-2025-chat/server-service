@@ -43,14 +43,10 @@ public class ServerController {
             @Valid @RequestBody ServerCreateRequest serverRequest
     ) {
         final var server = serverService.createServer(serverRequest, creatorId, userId);
-        try {
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .header("Location", "/api/servers/" + server.getId())
-                    .body(server);
-        } catch (ResponseStatusException ex) {
-            throw ex;
-        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .header("Location", "/api/servers/" + server.getId())
+                .body(server);
     }
 
     @Operation(

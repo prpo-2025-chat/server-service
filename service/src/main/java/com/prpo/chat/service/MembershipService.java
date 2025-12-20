@@ -60,16 +60,16 @@ public class MembershipService {
     }
 
     /**
-     * Removes the user from the server (GROUP or DM)
+     * Removes the user from the server
      *
-     * @param serverId
-     * @param userId
+     * @param serverId ID of the server, can be of type GROUP or DM
+     * @param userId   ID of the user
      */
     public void removeMember(
             final String serverId,
             final String userId) {
 
-        final var server = serverRepository.findById(serverId)
+        serverRepository.findById(serverId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Server with id " + serverId + " not found"
@@ -123,8 +123,8 @@ public class MembershipService {
      * Changes the role of user on server
      *
      * @param serverId server must be of type GROUP
-     * @param userId
-     * @param role
+     * @param userId ID of user (must be a member of the server)
+     * @param role {@link Membership.Role}
      */
     public void changeRole(
             final String serverId,

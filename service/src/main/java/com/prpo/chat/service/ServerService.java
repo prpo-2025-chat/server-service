@@ -37,7 +37,7 @@ public class ServerService {
     server.setType(serverType);
     server = serverRepository.save(server);
 
-    /**
+    /*
      * If server is GROUP it adds the creator to it as an OWNER
      * and if it is DM it adds both the creator and user to it as MEMBERS
      */
@@ -61,6 +61,6 @@ public class ServerService {
     return serverRepository.findById(serverId).orElse(null);
   }
 
-  public boolean serverExists(final String serverId) { return serverRepository.existsById(serverId); };
+  public boolean serverExists(final String serverId) { return serverRepository.existsById(serverId); }
 
 }

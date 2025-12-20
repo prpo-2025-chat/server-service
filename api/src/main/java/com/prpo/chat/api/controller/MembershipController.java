@@ -2,7 +2,6 @@ package com.prpo.chat.api.controller;
 
 import com.prpo.chat.entities.Membership;
 import com.prpo.chat.entities.Server;
-import com.prpo.chat.entities.ServerCreateRequest;
 import com.prpo.chat.service.MembershipService;
 import com.prpo.chat.service.ServerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
