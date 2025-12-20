@@ -1,61 +1,79 @@
 package com.prpo.chat.api.controller;
 
 import com.prpo.chat.entities.Server;
-import com.prpo.chat.service.MembershipService;
+import com.prpo.chat.entities.ServerCreateRequest;
 import com.prpo.chat.service.ServerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/servers")
 @RequiredArgsConstructor
+@Tag(name = "Server API", description = "Operations related to servers")
 public class ServerController {
 
-  @Autowired
-  private final ServerService serverService;
+    private final ServerService serverService;
 
-  /**
-   * Creates a Server and assignes the person who created it as ADMIN
-   */
-  @PostMapping
-  public ResponseEntity<Server> createServer(
-      @RequestHeader("User-Id") String userId,
-      @Valid @RequestBody Server server
-  ) {
-    final var res = serverService.createServer(server, userId);
-    return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .header("Location", "/api/servers/" + res.getId())
-        .body(res);
-  }
+    @Operation(
+            summary = "Create server",
+            description = "Create a server of type GROUP or DM. " +
+                    "Assign creator as OWNER for GROUP, and both users as MEMBERS for DM. " +
+                    "User-Id header is required only for DM servers."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Server created"),
+            @ApiResponse(responseCode = "400", description = "Missing User-Id header for DM server")
+    })
+    @PostMapping
+    public ResponseEntity<Server> createServer(
+            @RequestHeader("Creator-Id") String creatorId,
+            @Parameter(
+                    description = "Required only when creating a DM server"
+            )
+            @RequestHeader(value = "User-Id", required = false) String userId,
+            @Valid @RequestBody ServerCreateRequest serverRequest
+    ) {
+        final var server = serverService.createServer(serverRequest, creatorId, userId);
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .header("Location", "/api/servers/" + server.getId())
+                    .body(server);
+        } catch (ResponseStatusException ex) {
+            throw ex;
+        }
+    }
 
-  /**
-   * Creates a DM and assignes both people MEMBER roles
-   */
-  @PostMapping("/dm")
-  public ResponseEntity<Server> createDM(
-      @RequestHeader("User1-Id") String firstId,
-      @RequestHeader("User2-Id") String secondId,
-      @Valid @RequestBody Server server
-  ) {
-    final var res = serverService.createDM(server, firstId, secondId);
-    return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .header("Location", "/api/servers/" + res.getId())
-        .body(res);
-  }
+    @Operation(
+            summary = "Get server by id"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Server found"),
+            @ApiResponse(responseCode = "404", description = "Server not found")
+    })
+    @GetMapping("/{id}")
+    public ResponseEntity<Server> getServerById(
+            @PathVariable("id") String serverId
+    ) {
+        final var server = serverService.getServer(serverId);
+        if (server == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Server not found"
+            );
+        }
+        return new ResponseEntity<>(server, HttpStatus.OK);
+    }
 
-  @GetMapping("/id")
-  public ResponseEntity<Server> getServerById(
-      @RequestParam("id") String serverId
-  ) {
-    final var res = serverService.getServer(serverId);
-    return new ResponseEntity<>(res, HttpStatus.OK);
-  }
-
-  // changePfp
+    // changePfp
 }

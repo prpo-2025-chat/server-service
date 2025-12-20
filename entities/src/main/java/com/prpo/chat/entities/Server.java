@@ -18,6 +18,7 @@ public class Server {
   @NotBlank
   @Size(min = 2, max = 50)
   private String name;
+
   private Profile profile;
 
   @Data
