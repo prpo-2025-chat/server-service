@@ -61,4 +61,6 @@ public class ServerService {
     return serverRepository.findById(serverId).orElse(null);
   }
 
+  public boolean serverExists(final String serverId) { return serverRepository.existsById(serverId); };
+
 }

@@ -24,6 +24,7 @@ public class ServerController {
 
     private final ServerService serverService;
 
+    //TODO: Profile can be partially complete. The other thing should be set to default
     @Operation(
             summary = "Create server",
             description = "Create a server of type GROUP or DM. " +
@@ -37,9 +38,7 @@ public class ServerController {
     @PostMapping
     public ResponseEntity<Server> createServer(
             @RequestHeader("Creator-Id") String creatorId,
-            @Parameter(
-                    description = "Required only when creating a DM server"
-            )
+            @Parameter(description = "Required only when creating a DM server")
             @RequestHeader(value = "User-Id", required = false) String userId,
             @Valid @RequestBody ServerCreateRequest serverRequest
     ) {
