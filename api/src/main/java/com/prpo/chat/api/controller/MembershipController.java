@@ -134,11 +134,12 @@ public class MembershipController {
   })
   @PatchMapping
   public ResponseEntity<Void> changeRole(
-      @RequestHeader("User-Id") String userId,
+      @RequestHeader("Caller-User-Id") String callerUserId,
+      @RequestHeader("Target-User-Id") String targetUserId,
       @RequestHeader("Server-Id") String serverId,
       @RequestHeader("Role") Membership.Role role
   ) {
-    membershipService.changeRole(serverId, userId, role);
+    membershipService.changeRole(serverId, callerUserId, targetUserId, role);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

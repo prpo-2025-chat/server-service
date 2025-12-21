@@ -47,11 +47,7 @@ public class MembershipService {
             );
         }
 
-        final var server = serverRepository.findById(serverId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Server with id " + serverId + " not found"
-                ));
+        final var server = getServer(serverId);
 
         if (!server.getType().equals(Server.ServerType.GROUP)) {
             throw new ResponseStatusException(
@@ -85,17 +81,13 @@ public class MembershipService {
             final boolean isBanned
             ) {
 
-        serverRepository.findById(serverId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Server with id " + serverId + " not found"
-                ));
+        // throws exception if server doesn't exist;
+        getServer(serverId);
 
-        final var callerMembership = membershipRepository.findByServerIdAndUserId(serverId, callerUserId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        final var callerMembership = getMembership(serverId, callerUserId);
 
         /*
-         * Oseba lahko vedno odstrani samo sebe (in v tem primeru ni banned)
+         * User can always leave the server, and that is not considered a ban.
          */
         if(callerUserId.equals(targetUserId)) {
             if(isBanned) {
@@ -109,8 +101,7 @@ public class MembershipService {
             return;
         }
 
-        final var targetMembership = membershipRepository.findByServerIdAndUserId(serverId, targetUserId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        final var targetMembership = getMembership(serverId, targetUserId);
 
         if(!callerMembership.getRole().canManage(targetMembership.getRole())){
             throw new ResponseStatusException(
@@ -170,22 +161,21 @@ public class MembershipService {
     }
 
     /**
-     * Changes the role of user on server
+     * Changes the role of targetUser on the server, if callerUser has a higher role than targetUser
+     * and at least equal to role.
      *
      * @param serverId server must be of type GROUP
-     * @param userId ID of user (must be a member of the server)
+     * @param callerUserId ID of the user who is changing the role
+     * @param targetUserId ID of user whose role will be changed (must be a member of the server)
      * @param role {@link Membership.Role}
      */
     public void changeRole(
             final String serverId,
-            final String userId,
+            final String callerUserId,
+            final String targetUserId,
             final Membership.Role role) {
-
-        final var server = serverRepository.findById(serverId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Server with id " + serverId + " not found"
-                ));
+        // TODO: there can only be one OWNER
+        final var server = getServer(serverId);
 
         if (!server.getType().equals(Server.ServerType.GROUP)) {
             throw new ResponseStatusException(
@@ -194,15 +184,38 @@ public class MembershipService {
             );
         }
 
-        final var membership = membershipRepository
+        final var targetMembership = getMembership(serverId, targetUserId);
+        final var callerMembership = getMembership(serverId, callerUserId);
+
+        if(!callerMembership.getRole().canManage(targetMembership.getRole())
+        || !(callerMembership.getRole().level >= role.level)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    String.format("User %s does not have a high enough role.", callerUserId)
+            );
+        }
+
+        targetMembership.setRole(role);
+        membershipRepository.save(targetMembership);
+    }
+
+    private Membership getMembership(final String serverId, final String userId) {
+        return membershipRepository
                 .findByServerIdAndUserId(serverId, userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         String.format("User %s is not a member of the server %s", userId, serverId)
                 ));
-
-        membership.setRole(role);
-        membershipRepository.save(membership);
     }
+
+    private Server getServer(final String serverId) {
+        return serverRepository
+                .findById(serverId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Server not found"
+                ));
+    }
+
 
 }
