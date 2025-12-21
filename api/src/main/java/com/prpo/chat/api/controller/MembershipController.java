@@ -72,6 +72,7 @@ public class MembershipController {
   @ApiResponses({
           @ApiResponse(responseCode = "200", description = "User added successfully"),
           @ApiResponse(responseCode = "400", description = "Cannot add users to server, because it is not a server"),
+          @ApiResponse(responseCode = "403", description = "User is banned from the server"),
           @ApiResponse(responseCode = "404", description = "Server not found"),
           @ApiResponse(responseCode = "409", description = "User is already a member of the server")
   })
@@ -99,7 +100,26 @@ public class MembershipController {
           @RequestHeader("Target-User-Id") String targetUserId,
           @RequestHeader("Server-Id") String serverId
   ) {
-    membershipService.removeMember(serverId, callerUserId, targetUserId);
+    membershipService.removeMember(serverId, callerUserId, targetUserId, false);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @Operation(
+          summary = "Bans user from server",
+          description = "Bans and removes user from server if callerUser has high enough role"
+  )
+  @ApiResponses({
+          @ApiResponse(responseCode = "200", description = "User banned successfully"),
+          @ApiResponse(responseCode = "403", description = "Caller user does not have a high enough role."),
+          @ApiResponse(responseCode = "404", description = "Server not found or users not in server"),
+  })
+  @DeleteMapping("/ban")
+  public ResponseEntity<Void> banMember(
+          @RequestHeader("Caller-User-Id") String callerUserId,
+          @RequestHeader("Target-User-Id") String targetUserId,
+          @RequestHeader("Server-Id") String serverId
+  ) {
+    membershipService.removeMember(serverId, callerUserId, targetUserId, true);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
