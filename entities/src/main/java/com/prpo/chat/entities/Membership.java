@@ -2,6 +2,7 @@ package com.prpo.chat.entities;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,9 +20,23 @@ public class Membership {
 
   private Role role = Role.MEMBER;
 
+  private Status status;
+
+  @RequiredArgsConstructor
   public enum Role {
-    MEMBER,
-    ADMIN,
-    OWNER
+    MEMBER(1),
+    ADMIN(2),
+    OWNER(3);
+
+    public final int level;
+
+    public boolean canManage(final Role other) {
+      return this.level > other.level;
+    }
+  }
+
+  public enum Status {
+    NORMAL,
+    BANNED
   }
 }

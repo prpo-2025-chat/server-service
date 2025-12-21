@@ -56,18 +56,22 @@ public class MembershipService {
         membership.setServerId(serverId);
         membership.setUserId(userId);
         membership.setRole(role);
+        membership.setStatus(Membership.Status.NORMAL);
         membershipRepository.save(membership);
     }
 
     /**
-     * Removes the user from the server
+     * Removes the targetUser from the server, if callerUser has a higher role.
+     * If targetUserId and callerUserId are the same, it means that that user wants to leave. the server.
      *
      * @param serverId ID of the server, can be of type GROUP or DM
-     * @param userId   ID of the user
+     * @param callerUserId  ID of the user, that wants to kick the target user.
+     * @param targetUserId ID of the user to be removed.
      */
     public void removeMember(
             final String serverId,
-            final String userId) {
+            final String callerUserId,
+            final String targetUserId) {
 
         serverRepository.findById(serverId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -75,11 +79,28 @@ public class MembershipService {
                         "Server with id " + serverId + " not found"
                 ));
 
-        if (!isMemberOfServer(userId, serverId)) {
+        final var callerMembership = membershipRepository.findByServerIdAndUserId(serverId, callerUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        /*
+         * Oseba lahko vedno odstrani samo sebe
+         */
+        if(callerUserId.equals(targetUserId)) {
+            // TODO: if the user is the OWNER, the OWNER role has to go to someone else
+            membershipRepository.deleteByServerIdAndUserId(serverId, callerUserId);
             return;
         }
 
-        membershipRepository.deleteByServerIdAndUserId(serverId, userId);
+        final var targetMembership = membershipRepository.findByServerIdAndUserId(serverId, targetUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if(!callerMembership.getRole().canManage(targetMembership.getRole())){
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    String.format("User %s does not have persmission to kick user %s.", callerUserId, targetUserId)
+            );
+        }
+        membershipRepository.deleteByServerIdAndUserId(serverId, targetUserId);
     }
 
     /**

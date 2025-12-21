@@ -90,14 +90,16 @@ public class MembershipController {
   )
   @ApiResponses({
           @ApiResponse(responseCode = "200", description = "User removed successfully"),
-          @ApiResponse(responseCode = "404", description = "Server not found"),
+          @ApiResponse(responseCode = "403", description = "Caller user does not have a high enough role."),
+          @ApiResponse(responseCode = "404", description = "Server not found or users not in server"),
   })
   @DeleteMapping
   public ResponseEntity<Void> removeMember(
-          @RequestHeader("User-Id") String userId,
+          @RequestHeader("Caller-User-Id") String callerUserId,
+          @RequestHeader("Target-User-Id") String targetUserId,
           @RequestHeader("Server-Id") String serverId
   ) {
-    membershipService.removeMember(serverId, userId);
+    membershipService.removeMember(serverId, callerUserId, targetUserId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
