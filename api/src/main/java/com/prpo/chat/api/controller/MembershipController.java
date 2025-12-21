@@ -143,5 +143,20 @@ public class MembershipController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
+  @Operation(
+          summary = "Get membership"
+  )
+  @ApiResponses({
+          @ApiResponse(responseCode = "200", description = "Membership retrieved successfully"),
+          @ApiResponse(responseCode = "404", description = "Membership not found")
+  })
+  @GetMapping("/{id}")
+  public ResponseEntity<Membership> getMembership(
+          @PathVariable("id") String userId,
+          @RequestHeader("Server-Id") String serverId
+  ) {
+    final var res = membershipService.getMembership(serverId, userId);
+    return new ResponseEntity<>(res, HttpStatus.OK);
+  }
 
 }
