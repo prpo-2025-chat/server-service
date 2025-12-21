@@ -199,7 +199,11 @@ public class MembershipService {
         membershipRepository.save(targetMembership);
     }
 
-    private Membership getMembership(final String serverId, final String userId) {
+    public void deleteAllMemberships(final String serverId) {
+        membershipRepository.deleteByServerId(serverId);
+    }
+
+    public Membership getMembership(final String serverId, final String userId) {
         return membershipRepository
                 .findByServerIdAndUserId(serverId, userId)
                 .orElseThrow(() -> new ResponseStatusException(

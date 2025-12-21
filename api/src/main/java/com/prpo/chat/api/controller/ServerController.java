@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -61,13 +60,26 @@ public class ServerController {
             @PathVariable("id") String serverId
     ) {
         final var server = serverService.getServer(serverId);
-        if (server == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Server not found"
-            );
-        }
         return new ResponseEntity<>(server, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Delete server",
+            description = "Deletes server, if it's of type GROUP and callerUser has role OWNER"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Server successfully deleted"),
+            @ApiResponse(responseCode = "403", description = "User is not the owner"),
+            @ApiResponse(responseCode = "404", description = "Server not found"),
+            @ApiResponse(responseCode = "409", description = "Server is not a GROUP")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteServer(
+            @PathVariable("id") String serverId,
+            @RequestHeader("Caller-Id") String callerUserId
+    ) {
+        serverService.deleteServer(serverId, callerUserId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     // changePfp

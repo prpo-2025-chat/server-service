@@ -13,4 +13,5 @@ public interface MembershipRepository extends MongoRepository<Membership, String
   List<Membership> findByServerId(String serverId);
   Optional<Membership> findByServerIdAndUserId(String serverId, String userId);
   void deleteByServerIdAndUserId(String serverId, String userId);
+  void deleteByServerId(String serverId);
 }

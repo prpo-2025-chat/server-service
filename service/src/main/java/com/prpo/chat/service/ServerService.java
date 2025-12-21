@@ -57,8 +57,46 @@ public class ServerService {
     return server;
   }
 
+  /**
+   * Deletes server if server has type GROUP and caller is the owner of the server.
+   * It deletes all memberships associated with the server as well.
+   *
+   * @param serverId ID of the server to be deleted
+   *                 has to have type GROUP
+   * @param callerUserId ID of the person trying to delete the server
+   *                     has to be the OWNER of the server.
+   */
+  public void deleteServer(
+          final String serverId,
+          final String callerUserId
+  ) {
+    final var server = getServer(serverId);
+    if(server.getType() != Server.ServerType.GROUP) {
+      throw new ResponseStatusException(
+              HttpStatus.CONFLICT,
+              "Server is not a GROUP"
+      );
+    }
+
+    final var membership = membershipService.getMembership(serverId, callerUserId);
+    if(membership.getRole() != Membership.Role.OWNER) {
+      throw new ResponseStatusException(
+              HttpStatus.FORBIDDEN,
+              "User is not the owner."
+      );
+    }
+
+    membershipService.deleteAllMemberships(serverId);
+    serverRepository.deleteById(serverId);
+
+  }
+
   public Server getServer(final String serverId) {
-    return serverRepository.findById(serverId).orElse(null);
+    return serverRepository
+            .findById(serverId).orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Server not found"
+            ));
   }
 
   public boolean serverExists(final String serverId) { return serverRepository.existsById(serverId); }
