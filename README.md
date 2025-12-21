@@ -13,6 +13,5 @@ and then:\
 `docker run -p 8080:8080 user-service`
 
 TODO: 
-- test api calls
-- do proper responses
-- swagger documentation
+- Caller user should be provided as part of the auth on apis?
+- api auth in general
