@@ -4,7 +4,6 @@ services:
     image: server-service:latest
     container_name: server-service
     ports:
-      - "8080:8080"
+      - "8031:8031"
     environment:
-      - MONGO_URI=mongodb+srv://nbAdaran:<db_password>@users.rmpyjrs.mongodb.net/server-db?appName=users
-
+      MONGO_URI: ${MONGO_URI}

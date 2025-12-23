@@ -1,8 +1,8 @@
 server:
-  port: 8080
+  port: 8031
   address: 0.0.0.0
 
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://nbAdaran:123@users.rmpyjrs.mongodb.net/server-db?appName=users
+      uri: ${MONGODB_DATABASE}

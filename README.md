@@ -7,6 +7,7 @@ in server-service run:\
 
 `docker compose up --build`
 
+mongo uri shrani kot sistemsko spremeljivko MONGODB_DATABASE
 
 Zastarelo:\
 and then:\
