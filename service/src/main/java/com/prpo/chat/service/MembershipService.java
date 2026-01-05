@@ -49,12 +49,12 @@ public class MembershipService {
 
         final var server = getServer(serverId);
 
-        if (!server.getType().equals(Server.ServerType.GROUP)) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    String.format("Cannot add users to server %s, because it is not a server", userId)
-            );
-        }
+        // if (!server.getType().equals(Server.ServerType.GROUP)) {
+        //     throw new ResponseStatusException(
+        //             HttpStatus.BAD_REQUEST,
+        //             String.format("Cannot add users to server %s, because it is not a server", userId)
+        //     );
+        // }
 
         final var membership = new Membership();
         membership.setServerId(serverId);
